@@ -69,7 +69,7 @@ alignPhotos: # (Metashape: matchPhotos, alignCameras, (optionally) exportCameras
   generic_preselection: True # When matching photos, use a much-coarsened version of each photo to narrow down the potential neighbors to pair? Works well if the photos have high altitude above the surface and high overlap (e.g. a 120m nadir 90/90 overlap mission), but doesn't work well for low-altitude and/or highly oblique photos (e.g. a 80m 25deg pitch 80/80 overlap mission)
   reference_preselection: True # When matching photos, use the camera location data to narrow down the potential neighbors to pair?
   reference_preselection_mode: Metashape.ReferencePreselectionSource # When matching photos, use the camera location data to narrow down the potential neighbors to pair?
-  export: Falsemetashape-configs/sorensons1.yml # Export the camera locations
+  export: False # Export the camera locations
 
 filterPointsUSGS:
   enabled: True
