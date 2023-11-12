@@ -60,7 +60,7 @@ calibrateReflectance: # (Metahsape: calibrateReflectance)
   use_reflectance_panels: True
   use_sun_sensor: True
 
-alignPhotos: # (Metashape: matchPhotos, alignCameras)
+alignPhotos: # (Metashape: matchPhotos, alignCameras, (optionally) exportCameras)
   enabled: True
   downscale: 2 # How much to coarsen the photos when searching for tie points. Higher number for blurrier photos or when there are small surfaces that may move between photos (such as leaves). Accepts numbers 2^x (and zero) (https://www.agisoft.com/forum/index.php?topic=11697.0).
   adaptive_fitting: True # Should the camera lens model be fit at the same time as aligning photos?
@@ -69,6 +69,7 @@ alignPhotos: # (Metashape: matchPhotos, alignCameras)
   generic_preselection: True # When matching photos, use a much-coarsened version of each photo to narrow down the potential neighbors to pair? Works well if the photos have high altitude above the surface and high overlap (e.g. a 120m nadir 90/90 overlap mission), but doesn't work well for low-altitude and/or highly oblique photos (e.g. a 80m 25deg pitch 80/80 overlap mission)
   reference_preselection: True # When matching photos, use the camera location data to narrow down the potential neighbors to pair?
   reference_preselection_mode: Metashape.ReferencePreselectionSource # When matching photos, use the camera location data to narrow down the potential neighbors to pair?
+  export: Falsemetashape-configs/sorensons1.yml # Export the camera locations
 
 filterPointsUSGS:
   enabled: True
@@ -82,22 +83,25 @@ filterPointsUSGS:
 optimizeCameras: # (Metashape: optimizeCameras)
   enabled: True
   adaptive_fitting: True # Should the camera lens model be fit at the same time as optimizing photos?
+  export: False # Export the camera locations, now updated from the initial alignment
 
-buildPointCloud: # (Metashape: buildDepthMaps, buildPointCloud, (optionally) classifyGroundPoints, and exportPoints)
-  enabled: True
-  ## For depth maps (buildDepthMaps)
-  downscale: 4 # How much to coarsen the photos when searching for matches to build the point cloud. For large photosets, values < 4 likely take prohibitively long. Accepts numbers 2^x (https://www.agisoft.com/forum/index.php?topic=11697.0).
-  filter_mode: Metashape.ModerateFiltering # How to filter the point cloud. Options are NoFiltering, MildFiltering, ModerateFiltering, AggressiveFiltering. Aggressive filtering removes detail and makes worse DEMs (at least for forest). NoFiltering takes very long. In trials, it never completed.
-  reuse_depth: False # Purpose unknown.
-  ## For point cloud (buildPointCloud)
-  keep_depth: False # Purpose unknown.
-  ## For both
-  max_neighbors: 60 # Maximum number of neighboring photos to use for estimating point cloud. Higher numbers may increase accuracy but dramatically increase processing time.
-  ## For ground point classification (classifyGroundPoints). Definitions here: https://www.agisoft.com/forum/index.php?topic=9328.0
-  classify_ground_points: True # Should ground points be classified as a part of this step? Must be enabled (either here or in buildDem, below) if a digital terrain model (DTM) is needed either for orthomosaic or DTM export. Enabling here is an alternative to enabling as a component of buildDem (below). It depends on which stage you want the classification to be done at. If you already have a point cloud but it's unclassified, then don't do it as part of this stage as it would require computing the point cloud again.
-  ## For point cloud export (exportPoints)
-  export: False # Whether to export point cloud file.
-  classes: "ALL" # Point classes to export. Must be a list. Or can set to "ALL" to use all points. An example of a specific class is: Metashape.PointClass.Ground
+buildDepthMap: # (Metashape: buildDepthMaps)
+    enabled: True
+    downscale: 4 # How much to coarsen the photos when searching for matches to build the point cloud. For large photosets, values < 4 likely take prohibitively long. Accepts numbers 2^x (https://www.agisoft.com/forum/index.php?topic=11697.0).
+    filter_mode: Metashape.ModerateFiltering # How to filter the depth map. Options are NoFiltering, MildFiltering, ModerateFiltering, AggressiveFiltering. Aggressive filtering removes detail and makes worse DEMs (at least for forest). NoFiltering takes very long. In trials, it never completed.
+    reuse_depth: False # Purpose unknown.
+    max_neighbors: 60 # Maximum number of neighboring photos to use for estimating depth map. Higher numbers may increase accuracy but dramatically increase processing time.
+
+buildPointCloud: # (Metashape: buildPointCloud, (optionally) classifyGroundPoints, and exportPoints)
+    enabled: True
+    ## For build point cloud (buildPointCloud)
+    keep_depth: False # Purpose unknown.
+    max_neighbors: 60 # Maximum number of neighboring photos to use for estimating point cloud. Higher numbers may increase accuracy but dramatically increase processing time.
+    ## For ground point classification (classifyGroundPoints). Definitions here: https://www.agisoft.com/forum/index.php?topic=9328.0
+    classify_ground_points: True # Should ground points be classified as a part of this step? Must be enabled (either here or in buildDem, below) if a digital terrain model (DTM) is needed either for orthomosaic or DTM export. Enabling here is an alternative to enabling as a component of buildDem (below). It depends on which stage you want the classification to be done at. If you already have a point cloud but it's unclassified, then don't do it as part of this stage as it would require computing the point cloud again.
+    ## For point cloud export (exportPoints)
+    export: False # Whether to export point cloud file.
+    classes: "ALL" # Point classes to export. Must be a list. Or can set to "ALL" to use all points. An example of a specific class is: Metashape.PointClass.Ground
 
 classifyGroundPoints: # (Metashape: classifyGroundPoints) # classify points, IF SPECIFIED as a component of buildPointCloud (above) or buildDem (below). Must be enabled (either here or in buldDem, below) if a digital terrain model (DTM) is needed either for orthomosaic or DTM export. 
   max_angle: 15.0
